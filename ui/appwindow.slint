@@ -1,0 +1,66 @@
+import { Button, HorizontalBox, VerticalBox, ScrollView } from "std-widgets.slint";
+
+export struct Register {
+    name: string,
+    value: string,
+}
+
+export component RegisterDisplay inherits Rectangle {
+    in-out property <string> register-name;
+    in-out property <string> value <=> register-value.text;
+    preferred-height: 100%;
+    preferred-width: 100%;
+    HorizontalBox {
+        Rectangle {
+            border-color: red;
+            border-width: 1px;
+            register-name := Text {
+                text: "\{root.register-name}:";
+            }
+        }
+        Rectangle {
+            border-color: red;
+            border-width: 1px;
+            register-value := Text {
+            }
+        }
+    }
+}
+
+export component Status inherits Rectangle {
+    preferred-height: 100%;
+    preferred-width: 100%;
+    in-out property<[Register]> registers: [];
+    in-out property<[Register]> pc-and-flags: [];
+    border-color: green;
+    border-width: 1px;
+    VerticalBox {
+        HorizontalBox {
+            for register[index] in registers: RegisterDisplay {
+                register-name: register.name;
+                value: register.value;
+            }
+        }
+        HorizontalBox {
+            for register[index] in pc-and-flags: RegisterDisplay {
+                register-name: register.name;
+                value: register.value;
+            }
+        }
+    }
+}
+
+export component AppWindow inherits Window {
+    in-out property <[Register]> registers <=> register-display.registers;
+    in-out property <[Register]> pc-and-flags <=> register-display.pc-and-flags;
+    callback step-vm();
+    VerticalBox {
+        register-display := Status { }
+        Button {
+            text: "Step VM and print state.";
+            clicked => {
+                root.step-vm();
+            }
+        }
+    }
+}
